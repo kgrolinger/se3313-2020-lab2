@@ -19,9 +19,6 @@ private:
 protected:
     Sync::Event terminationEvent;
 
-private:
-    Thread(Thread const &){}
-    Thread & operator=(Thread const &){}
 public:
     Thread(int exitTimeout = 1000);
     virtual ~Thread();
