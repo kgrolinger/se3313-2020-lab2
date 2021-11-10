@@ -129,7 +129,7 @@ FlexWait::FlexWait(int n,... )
 // never time out.
 void ShowFD_Set (fd_set & theSet)
 {
-    int total = 1024 / (8 * (int) sizeof (__fd_mask));
+    int total = 1024 / (8 * (int) sizeof (fd_mask));
     for (int i=0;i<total; i++)
     {
         if (theSet.fds_bits[i])
