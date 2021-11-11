@@ -7,58 +7,62 @@
 using namespace std;
 
 struct MyShared{
-	int sharedDelay;
 	int sharedThreadID;
 	int sharedReportID;
-	bool sRunning;
+	int sharedDelay;
+	bool sharedRunning;
 };
+
 
 class WriterThread : public Thread{
 public:
-		int 	delay;
-		int 	threadID;
-		int 	reportID = 1;
-		bool	flag;
+		int delay;
+		int threadID;
+		int reportID = 1;
+		bool flag;
 		
-		WriterThread(int in, int threadid):Thread(8*1000){
-			this->delay = in;
-			this->threadID = threadid;
+		WriterThread(int delay, int threadID):Thread(8*1000){
+			this->delay = delay;
+			this->threadID = threadID;
 		}
 
 		virtual long ThreadMain(void) override{
 
 			Shared<MyShared> sharedMemory ("sharedMemory");
+			//create semaphores for the writer and reader
 			Semaphore writerSem("writerSemaphore");
-			Semaphore readerSem("readerSemaphore");//creating semaphores for the writer and reader
+			Semaphore readerSem("readerSemaphore");
 			
-				// Below the memory values of the thread must be updated
-				while(true){
-					writerSem.Wait(); //Lock resource so no others can write to the shared memory at the same time
-					//Update the thread information while it is locked
-					sharedMemory->sharedThreadID = threadID; //sets thread ID
-					sharedMemory->sharedReportID = reportID; //sets number of reports
-					sharedMemory->sharedDelay = delay;//sets delay
-					reportID ++; //increments the number of reports 
-					
-				writerSem.Signal(); //once the information is set the resource can be unlocked for other read write operations to occur as needed
-					readerSem.Signal(); //signal the reader semaphore so that reads can occur from the shared resource 
-					
-					sleep(delay); //sleeps the thread for the amount of delay set by the user
-					if(flag){
-						break;
-					}
+			// below the memory values of the thread must be updated
+			while(true){
+				writerSem.Wait(); //lock resource so no others can write to the shared memory at the same time
+				//update the thread information while it is locked
+				sharedMemory->sharedThreadID = threadID; //sets thread ID
+				sharedMemory->sharedReportID = reportID; //sets number of reports
+				sharedMemory->sharedDelay = delay;//sets delay
+				reportID ++; //increments the number of reports 
+				
+				writerSem.Signal(); //once the information is set, the resource can be unlocked for other read write operations to occur as needed
+				readerSem.Signal(); //signal the reader semaphore so that reads can occur from the shared resource 
+				
+				sleep(delay); //sleep the thread for the amount of delay set by the user
+				if(flag){
+					break;
+				}
 			}
-			return 1;
+			// return 1;
 		}
 };
 
 int main(void)
 {
-	Semaphore writerSem("writerSemaphore", 1, true); //Creates sem with initial value of one and owner status as true
-	Semaphore readerSem("readerSemaphore", 0, true); //Creates sem with initial value of zero and owner status as false	
+	 //Creates sem with initial value of one and owner status as true
+	Semaphore writerSem("writerSemaphore", 1, true);
+	//Creates sem with initial value of zero and owner status as false	
+	Semaphore readerSem("readerSemaphore", 0, false); 
 	
-	string  userInput;
-	string userDelay;
+	string userInput;
+	string threadDelay;
 	int numThreads=1; //Used for creating writerThread objects where numThreads will be used to give threads ID #s
 
 	cout << "I am a Writer" << endl;
@@ -67,40 +71,41 @@ int main(void)
 	Shared<MyShared> shared("sharedMemory", true); //This is the owner of sharedMamory
 	
 	while(true){
-		//Prompt user and get input. 
-		cout << "Would you like to create a writer thread? Enter Y or N: "<< endl;
+		cout << "Would you like to create a writer thread? Enter yes or no: "<< endl;
 		cin >> userInput;
 		cin.ignore();
-		if(userInput == "Y"){
+		if(userInput == "yes"){
 			cout << "Please enter a delay time for this thread: "<< endl;
-			cin >> userDelay;
+			cin >> threadDelay;
 			cin.ignore();
-			int delay = atoi(userDelay.c_str()); //Convert the string to and int
-			shared ->sRunning = true;//Set the running value to true so the reader can poll the shared memory
+			int delay = atoi(threadDelay.c_str()); //Convert the string to and int
 			//Create a new writerThread object 
 			thread = new WriterThread(delay,numThreads);//instantiate thread 
+			shared ->sharedRunning = true;//Set the running value to true so the reader can poll the shared memory
 			numThreads++; //Increase the number of threads 
 		}
-		else if (userInput == "N"){
-			//If the user enters N then the while statement will break and threads will be handled 
-			if(numThreads -1 !=0){ //Avoids core dump in the case N is entered first and no threads were created
-				shared->sRunning = false;
+		else if (userInput == "no"){
+			//if no is the first input -> sharedRunning should be false
+			if(numThreads -1 !=0){ 
+				shared->sharedRunning = false;
 				break;
 			}
+			//break out of the while loop
 			else{
 				break;
 			}
 		}
 		else
 		{
-			//To handle inproper inputs. 
+			//inproper inputs handler
 			cout << "Invalid input entered." << endl;
 		}
-	}//end while 
-	if(numThreads-1 != 0){ //Avoids core dump in the case N is entered first and no threads were created
+	}
+	//to avoid core dump in the case no is entered first and no threads were created
+	if(numThreads-1 != 0){ 
 		thread ->flag = true;
 		delete thread; 
 	}
-	
-	return 0;	
+
+return 0;	
 }//end main 
