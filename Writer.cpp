@@ -3,6 +3,7 @@
 #include "thread.h"
 #include <string> 
 #include "Semaphore.h"
+using namespace std;
 
 struct MyShared{
 	int sdelay;
@@ -55,22 +56,24 @@ int main(void)
 	Semaphore writerSem("writerSemaphore", 1, true); //Creates sem with initial value of one and owner status as true
 	Semaphore readerSem("readerSemaphore", 0, true); //Creates sem with initial value of zero and owner status as false	
 	
-	std::string  userInput;
-	std::string userDelay;
+	string  userInput;
+	string userDelay;
 	int numThreads=1; //Used for creating writerThread objects where numThreads will be used to give threads ID #s
 
-	std::cout << "I am a Writer" << std::endl;
+	cout << "I am a Writer" << endl;
 	
 	WriterThread * thread; //declare thread 
 	Shared<MyShared> shared("sharedMemory", true); //This is the owner of sharedMamory
 	
 	while(true){
 		//Prompt user and get input. 
-		std::cout << "Would you like to create a writer thread? Enter Y or N: "<< std::endl;
-		getline(std::cin,userInput);
+		cout << "Would you like to create a writer thread? Enter Y or N: "<< endl;
+		cin >> userInput;
+		cin.ignore();
 		if(userInput == "Y"){
-			std::cout << "Please enter a delay time for this thread: "<< std::endl;
-			getline(std::cin,userDelay);
+			cout << "Please enter a delay time for this thread: "<< endl;
+			cin >> userDelay;
+			cin.ignore();
 			int delay = atoi(userDelay.c_str()); //Convert the string to and int
 			shared ->sRunning = true;//Set the running value to true so the reader can poll the shared memory
 			//Create a new writerThread object 
@@ -90,7 +93,7 @@ int main(void)
 		else
 		{
 			//To handle inproper inputs. 
-			std::cout << "Invalid input entered." << std::endl;
+			cout << "Invalid input entered." << endl;
 		}
 	}//end while 
 	if(numThreads-1 != 0){ //Avoids core dump in the case N is entered first and no threads were created

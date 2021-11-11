@@ -1,6 +1,7 @@
 #include <iostream>
 #include "SharedObject.h"
-//using namespace std;
+
+using namespace std;
 
 struct MyShared{
 	int sdelay;
@@ -9,10 +10,9 @@ struct MyShared{
 	bool sRunning;
 };
 
-
 int main(void)
 {
-	std::cout << "I am a reader" << std::endl;
+	cout << "I am a reader" << endl;
 	Shared<MyShared> sharedMemory("sharedMemory");
 	
 
@@ -20,8 +20,8 @@ int main(void)
 	// then it will display the data, if it is not it will break 
 	while (true){
 		if (sharedMemory->sRunning == true){
-			std::cout << "ThreadID: " << sharedMemory->sthreadID <<" ReportID: "<<sharedMemory->sreportID <<" Delay: " <<sharedMemory->sdelay <<std::endl;
-			sleep(2); 
+			cout << "ThreadID: " << sharedMemory->sthreadID <<" ReportID: "<<sharedMemory->sreportID <<" Delay: " <<sharedMemory->sdelay << endl;
+			sleep(1); 
 		}else {
 			//When a user enters n the value of Running will be set to false and the loop will break causing the reader to terminate
 			break;
