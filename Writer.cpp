@@ -3,12 +3,13 @@
 #include "thread.h"
 #include <string> 
 #include "Semaphore.h"
+
 using namespace std;
 
 struct MyShared{
-	int sdelay;
-	int sthreadID;
-	int sreportID;
+	int sharedDelay;
+	int sharedThreadID;
+	int sharedReportID;
 	bool sRunning;
 };
 
@@ -34,9 +35,9 @@ public:
 				while(true){
 					writerSem.Wait(); //Lock resource so no others can write to the shared memory at the same time
 					//Update the thread information while it is locked
-					sharedMemory->sthreadID = threadID; //sets thread ID
-					sharedMemory->sreportID = reportID; //sets number of reports
-					sharedMemory->sdelay = delay;//sets delay
+					sharedMemory->sharedThreadID = threadID; //sets thread ID
+					sharedMemory->sharedReportID = reportID; //sets number of reports
+					sharedMemory->sharedDelay = delay;//sets delay
 					reportID ++; //increments the number of reports 
 					
 				writerSem.Signal(); //once the information is set the resource can be unlocked for other read write operations to occur as needed
