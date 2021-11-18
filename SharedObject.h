@@ -15,7 +15,7 @@ template<class T> class Shared
 private:
     int memoryIdentifier;
     std::string fullName;
-    T * ptr;
+    T * ptr; //memory address pointer
     bool owner;
 public:
     Shared(std::string const & name, bool createAsOwner=false)

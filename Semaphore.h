@@ -3,6 +3,7 @@
 #include <semaphore.h>
 #include <fcntl.h>           /* For O_* constants */
 #include <sys/stat.h>        /* For mode constants */
+#include <iostream>
 
 class Semaphore
 {
