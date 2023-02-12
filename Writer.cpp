@@ -40,11 +40,10 @@ int main(void)
 	*/
 	
 	Shared<MyShared> shared("sharedMemory", true);
-	
 	std::cout << "I am a Writer" << std::endl;
 	std::string nThread = "";
 	int delay = 0;
-	
+	WriterThread* thread1;
 	while(true)
 	{
 	    std::cout << "\nWould you like to create a new thread (y/n)?\n";
