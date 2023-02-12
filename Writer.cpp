@@ -72,7 +72,7 @@ class WriterThread : public Thread{
 	public:
 		int 	threadNum;
 		bool	flag;
-		Myshared share;
+		MyShared share;
 		
 		WriterThread(int in):Thread(8*1000){
 			this->threadNum = in; //or whatever you want/need here
@@ -92,4 +92,3 @@ class WriterThread : public Thread{
 			}
 		}
 };
-*/
