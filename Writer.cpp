@@ -1,6 +1,8 @@
 #include <iostream>
-#include <thread.h>
-#include <SharedObject.h>
+#include "thread.h"
+#include "SharedObject.h"
+#include <thread>
+#include <unistd.h>
 
 struct MyShared{
 
@@ -43,9 +45,11 @@ int main(void)
 	std::cout << "I am a Writer" << std::endl;
 	std::string nThread = "";
 	int delay = 0;
-	WriterThread* thread1;
+	WriterThread* thread;
+	int tCount = 0;
 	while(true)
 	{
+	    tCount++;
 	    std::cout << "\nWould you like to create a new thread (y/n)?\n";
 	    std::cin >> nThread;
 	    if(nThread == "n")
@@ -54,7 +58,9 @@ int main(void)
 	    }
 	    std::cout << "\nWhat is the Time delay for this Thread in s?\n";
 	    std::cin >> delay;
-	    thread1 = new WriterThread(delay);
+	    thread1 = new WriterThread(tCount, delay);
+	    
+	    
 	    
 	}
 	
@@ -70,21 +76,28 @@ int main(void)
 class WriterThread : public Thread{
 	public:
 		int 	threadNum;
-		bool	flag;
-		MyShared share;
+		bool	flag = false;
+		int delay;
+		int reportId = 0;
+		//MyShared share;
 		
-		WriterThread(int in):Thread(8*1000){
-			this->threadNum = in; //or whatever you want/need here
+		
+		WriterThread(int d, int num):Thread(8*1000){
+			this->threadNum = num; //or whatever you want/need here
+			delay = d;
+
+
 		}
 
 		virtual long ThreadMain(void) override{
-			...
+		
 			//declare shared memory var so this thread can access it
 			Shared<MyShared> sharedMemory ("sharedMemory");
 			while(true)
 			{
-				//write to shared memory
-				...  
+				this->reportId++;
+				sleep(delay)
+				sharedMemory->threadId = threadNum;
 				if(flag){//Exit loop to end the thread
 					break;
 				}
