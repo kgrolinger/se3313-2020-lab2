@@ -5,8 +5,6 @@
 #include <unistd.h>
 
 struct MyShared{
-
-private:
     int threadId;
     int reportId;
     int time;
@@ -19,6 +17,38 @@ MyShared(int tId, int rId, int tm)
     time = tm;
 }    
     
+};
+
+class WriterThread : public Thread{
+	public:
+		int 	threadNum;
+		bool	flag = false;
+		int delay;
+		int reportId = 0;
+		//MyShared share;
+		
+		
+		WriterThread(int d, int num):Thread(8*1000){
+			this->threadNum = num; //or whatever you want/need here
+			delay = d;
+
+
+		}
+
+		virtual long ThreadMain(void) override{
+		
+			//declare shared memory var so this thread can access it
+			Shared<MyShared> sharedMemory ("sharedMemory");
+			while(true)
+			{
+				this->reportId++;
+				sleep(delay);
+				sharedMemory->threadId = threadNum;
+				if(flag){//Exit loop to end the thread
+					break;
+				}
+			}
+		}
 };
 
 int main(void)
@@ -45,7 +75,7 @@ int main(void)
 	std::cout << "I am a Writer" << std::endl;
 	std::string nThread = "";
 	int delay = 0;
-	WriterThread* thread;
+	WriterThread* thread1;
 	int tCount = 0;
 	while(true)
 	{
@@ -73,34 +103,4 @@ int main(void)
 // You do not have to start with this
 ////////////////////////////////////////////////////////////////////////
 
-class WriterThread : public Thread{
-	public:
-		int 	threadNum;
-		bool	flag = false;
-		int delay;
-		int reportId = 0;
-		//MyShared share;
-		
-		
-		WriterThread(int d, int num):Thread(8*1000){
-			this->threadNum = num; //or whatever you want/need here
-			delay = d;
 
-
-		}
-
-		virtual long ThreadMain(void) override{
-		
-			//declare shared memory var so this thread can access it
-			Shared<MyShared> sharedMemory ("sharedMemory");
-			while(true)
-			{
-				this->reportId++;
-				sleep(delay)
-				sharedMemory->threadId = threadNum;
-				if(flag){//Exit loop to end the thread
-					break;
-				}
-			}
-		}
-};
