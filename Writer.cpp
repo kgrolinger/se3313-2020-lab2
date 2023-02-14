@@ -83,11 +83,11 @@ int main(void)
 	    
 	    
 	}
-	while(!tStack.isEmpty)
+	while(!tStack.empty())
 	{
-	    thTop = tStack.top();
-	    thTop->flag = true;
-	    delete thTop;
+	    th = tStack.top();
+	    th->flag = true;
+	    delete th;
 	    tStack.pop();
 	}
 
