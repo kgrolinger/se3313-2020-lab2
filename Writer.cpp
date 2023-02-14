@@ -2,34 +2,31 @@
 #include "thread.h"
 #include "SharedObject.h"
 #include <thread>
+#include <stack>
 #include <unistd.h>
+#include <time.h>
+
+using namespace std;
 
 struct MyShared{
-    int threadId;
-    int reportId;
-    int time;
-
-public:
-MyShared(int tId, int rId, int tm)
-{
-    threadId = tId;
-    reportId = rId;
-    time = tm;
-}    
+    int thId;
+    int repId;
+    int tDelay;
+    int tElap;
     
 };
 
 class WriterThread : public Thread{
 	public:
-		int 	threadNum;
-		bool	flag = false;
+		int threadNum;
+		bool flag = false;
 		int delay;
 		int reportId = 0;
 		//MyShared share;
 		
 		
 		WriterThread(int d, int num):Thread(8*1000){
-			this->threadNum = num; //or whatever you want/need here
+			threadNum = num; 
 			delay = d;
 
 
@@ -42,40 +39,32 @@ class WriterThread : public Thread{
 			while(true)
 			{
 				this->reportId++;
+				time_t first = time(0);
 				sleep(delay);
-				sharedMemory->threadId = threadNum;
-				if(flag){//Exit loop to end the thread
-					break;
+				time_t last = time(0);
+				sharedMemory->thId = threadNum;
+				sharedMemory->repId = reportId;
+				sharedMemory->tDelay = delay;
+				sharedMemory->tElap = (last-first);
+				
+				if(flag == true)
+				{
+				    break;
 				}
 			}
+		return 1;	
 		}
 };
 
 int main(void)
 {
-	////////////////////////////////////////////////////////////////////////
-	// This is a possible starting point for using threads and shared memory. 
-	// You do not have to start with this
-	////////////////////////////////////////////////////////////////////////
-	/*...
-	Shared<MyShared> shared("sharedMemory", true); //This is the owner of sharedMamory
-	...
-	while(true){
-		...
-		//create thread using user input
-		thread1 = new WriterThread(xyz); //add arguments as needed
-		...
-	}
-	//example for one thread thread1
-	thread1->flag= true;
-	delete thread1;
-	*/
 	
 	Shared<MyShared> shared("sharedMemory", true);
 	std::cout << "I am a Writer" << std::endl;
 	std::string nThread = "";
 	int delay = 0;
-	WriterThread* thread1;
+	WriterThread* th;
+	stack<WriterThread*> tStack;
 	int tCount = 0;
 	while(true)
 	{
@@ -88,19 +77,20 @@ int main(void)
 	    }
 	    std::cout << "\nWhat is the Time delay for this Thread in s?\n";
 	    std::cin >> delay;
-	    thread1 = new WriterThread(tCount, delay);
+	    th = new WriterThread(tCount, delay);
+	    tStack.push(th);
 	    
 	    
 	    
 	}
-	
+	while(!tStack.isEmpty)
+	{
+	    thTop = tStack.top();
+	    thTop->flag = true;
+	    delete thTop;
+	    tStack.pop();
+	}
 
 }
-
-
-////////////////////////////////////////////////////////////////////////
-// This is a possible starting point for using threads and shared memory. 
-// You do not have to start with this
-////////////////////////////////////////////////////////////////////////
 
 
